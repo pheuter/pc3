@@ -8,7 +8,8 @@
 import Config
 
 config :pc3,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [Pc3.Api]
 
 # Configures the endpoint
 config :pc3, Pc3Web.Endpoint,

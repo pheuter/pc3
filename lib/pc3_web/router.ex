@@ -11,7 +11,7 @@ defmodule Pc3Web.Router do
   end
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "json-api"]
   end
 
   scope "/", Pc3Web do
@@ -20,10 +20,29 @@ defmodule Pc3Web.Router do
     get "/", PageController, :home
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", Pc3Web do
-  #   pipe_through :api
-  # end
+  # OpenAPI documentation viewers (must come before the general API forward)
+  scope "/api" do
+    pipe_through :browser
+
+    # Swagger UI for API documentation
+    forward "/swaggerui",
+            OpenApiSpex.Plug.SwaggerUI,
+            path: "/api/open_api",
+            default_model_expand_depth: 4
+
+    # Redoc UI for API documentation
+    forward "/redoc",
+            Redoc.Plug.RedocUI,
+            spec_url: "/api/open_api"
+  end
+
+  # API routes
+  scope "/api" do
+    pipe_through :api
+
+    # Forward to the Ash JSON API router
+    forward "/", Pc3Web.ApiRouter
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:pc3, :dev_routes) do

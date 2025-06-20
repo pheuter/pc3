@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Phoenix Framework 1.8.0-rc.3 web application built with Elixir. The project uses modern tooling including Tailwind CSS v4, LiveView for real-time features, and DaisyUI for component styling.
+This is a Phoenix Framework 1.8.0-rc.3 web application built with Elixir that implements a product management API using Ash Framework. The project features both a web interface and a JSON API with OpenAPI documentation support.
 
 ## Essential Commands
 
@@ -48,12 +48,12 @@ mix credo --strict
 
 # Run Credo with suggestions
 mix credo suggest
+```
 
-# Check specific files
-mix credo lib/pc3_web/router.ex
-
-# Generate Credo config (already done)
-mix credo gen.config
+### API Documentation
+```bash
+# Generate OpenAPI specification
+mix openapi.gen
 ```
 
 ### Assets
@@ -67,37 +67,71 @@ mix assets.deploy
 
 ## Architecture Overview
 
-The project follows standard Phoenix conventions with clear separation of concerns:
+The project uses Ash Framework for domain modeling with a CSV data layer instead of a traditional database:
 
-- **lib/pc3/** - Business logic and domain models
-- **lib/pc3_web/** - Web layer (controllers, views, components)
-  - **components/** - Reusable LiveView components
+### Core Structure
+- **lib/pc3/** - Business logic and Ash resources
+  - **api.ex** - Ash domain configuration with JSON API routes
+  - **product.ex** - Product resource using CSV data layer (priv/data/products.csv)
+  - **application.ex** - OTP application supervisor
+
+- **lib/pc3_web/** - Web layer
+  - **router.ex** - Main routing configuration with API pipeline
+  - **api_router.ex** - API-specific routing with JSON API and OpenAPI support
   - **controllers/** - HTTP request handlers
-  - **router.ex** - All route definitions
-- **assets/** - Frontend assets
-  - Uses Tailwind CSS v4 with @plugin syntax
-  - DaisyUI for themed components (light/dark themes)
-  - LiveView for real-time interactivity
+  - **components/** - LiveView components using `.heex` templates
 
-## Key Technical Details
+### API Endpoints
+The application provides a comprehensive product management API:
+- **GET /api/products** - List all products
+- **POST /api/products** - Create a new product
+- **GET /api/products/:id** - Get a specific product
+- **PATCH /api/products/:id** - Update a product
+- **DELETE /api/products/:id** - Delete a product
 
-1. **LiveView Integration**: The app uses Phoenix LiveView for real-time features. Components in `lib/pc3_web/components/` use the `.heex` extension and support live updates.
+API documentation is available at:
+- `/api/swaggerui` - Interactive Swagger UI
+- `/api/redoc` - Redoc documentation
 
-2. **Tailwind v4**: The project uses the new Tailwind v4 syntax. CSS configuration is in `assets/css/app.css` using `@plugin` directives instead of the old config file approach.
+### Key Technical Details
 
-3. **Development Routes**: 
+1. **Ash Framework**: The project uses Ash for domain modeling with:
+   - CSV data layer (no traditional database)
+   - JSON API specification compliance
+   - Automatic OpenAPI spec generation
+
+2. **Data Storage**: Products are stored in `priv/data/products.csv` instead of a database. The Ash.DataLayer.Csv adapter handles persistence.
+
+3. **API Structure**: 
+   - Uses separate router module (`Pc3Web.ApiRouter`) for API routes
+   - Implements JSON API specification
+   - Includes OpenAPI documentation generation
+
+4. **Frontend Stack**:
+   - Phoenix LiveView for real-time features
+   - Tailwind CSS v4 with @plugin syntax
+   - ESBuild for JavaScript bundling
+
+5. **Development Routes**:
    - `/dev/dashboard` - Live Dashboard for monitoring
    - `/dev/mailbox` - Email preview (Swoosh)
 
-4. **No Database Yet**: The project doesn't have Ecto/database configured. When adding database functionality, use `mix ecto.*` commands.
-
-5. **Testing Structure**: Tests mirror the source structure. Controller tests go in `test/pc3_web/controllers/`, etc.
-
 ## Development Workflow
 
-When making changes:
-1. Always run `mix format` before committing
-2. Run `mix credo --strict` to check code quality and maintain consistency
+When working with the API:
+1. Product data is stored in `priv/data/products.csv`
+2. API changes should be reflected in OpenAPI docs by running `mix openapi.gen`
+3. Test API endpoints using the Swagger UI at `/api/swaggerui`
+
+When making code changes:
+1. Run `mix format` before committing
+2. Run `mix credo --strict` to check code quality
 3. Run `mix test` to ensure tests pass
 4. For frontend changes, assets are automatically rebuilt in development
-5. Use `mix phx.server` for development with hot reloading enabled
+
+## Important Notes
+
+- The project uses CSV files instead of a database, so no Ecto migrations are needed
+- When modifying the Product resource, ensure the CSV data layer constraints are maintained
+- API routes are defined in both the Ash domain (`lib/pc3/api.ex`) and the Phoenix router
+- The project uses Phoenix 1.8 RC version with modern features like verified routes
