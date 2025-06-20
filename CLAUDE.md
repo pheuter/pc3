@@ -9,6 +9,7 @@ This is a Phoenix Framework 1.8.0-rc.3 web application built with Elixir that im
 ## Essential Commands
 
 ### Development
+
 ```bash
 # Initial setup (installs deps and builds assets)
 mix setup
@@ -21,6 +22,7 @@ iex -S mix phx.server
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 mix test
@@ -28,11 +30,18 @@ mix test
 # Run specific test file
 mix test test/path/to/test_file.exs
 
+# Run tests matching a pattern
+mix test --only test_name_pattern
+
 # Run with coverage
 mix test --cover
+
+# Run tests with detailed trace
+mix test --trace
 ```
 
 ### Code Quality
+
 ```bash
 # Format code
 mix format
@@ -51,12 +60,14 @@ mix credo suggest
 ```
 
 ### API Documentation
+
 ```bash
 # Generate OpenAPI specification
 mix openapi.gen
 ```
 
 ### Assets
+
 ```bash
 # Build assets for development
 mix assets.build
@@ -70,9 +81,11 @@ mix assets.deploy
 The project uses Ash Framework for domain modeling with a CSV data layer instead of a traditional database:
 
 ### Core Structure
+
 - **lib/pc3/** - Business logic and Ash resources
+
   - **api.ex** - Ash domain configuration with JSON API routes
-  - **product.ex** - Product resource using CSV data layer (priv/data/products.csv)
+  - **product.ex** - Product resource using CSV data layer
   - **application.ex** - OTP application supervisor
 
 - **lib/pc3_web/** - Web layer
@@ -81,35 +94,37 @@ The project uses Ash Framework for domain modeling with a CSV data layer instead
   - **controllers/** - HTTP request handlers
   - **components/** - LiveView components using `.heex` templates
 
-### API Endpoints
-The application provides a comprehensive product management API:
-- **GET /api/products** - List all products
-- **POST /api/products** - Create a new product
-- **GET /api/products/:id** - Get a specific product
-- **PATCH /api/products/:id** - Update a product
-- **DELETE /api/products/:id** - Delete a product
+### API Documentation
+
+The application provides a JSON API with both standard CRUD operations and custom business actions. All endpoints follow JSON API specification.
 
 API documentation is available at:
+
 - `/api/swaggerui` - Interactive Swagger UI
 - `/api/redoc` - Redoc documentation
+- `/api/open_api` - Raw OpenAPI specification
 
 ### Key Technical Details
 
 1. **Ash Framework**: The project uses Ash for domain modeling with:
+
    - CSV data layer (no traditional database)
    - JSON API specification compliance
    - Automatic OpenAPI spec generation
 
-2. **Data Storage**: Products are stored in `priv/data/products.csv` instead of a database. The Ash.DataLayer.Csv adapter handles persistence.
+2. **Data Storage**: Uses CSV files for data persistence instead of a traditional database. The Ash.DataLayer.Csv adapter handles all CRUD operations.
 
-3. **API Structure**: 
+3. **API Structure**:
+
    - Uses separate router module (`Pc3Web.ApiRouter`) for API routes
    - Implements JSON API specification
    - Includes OpenAPI documentation generation
 
 4. **Frontend Stack**:
+
    - Phoenix LiveView for real-time features
    - Tailwind CSS v4 with @plugin syntax
+   - DaisyUI for component styling
    - ESBuild for JavaScript bundling
 
 5. **Development Routes**:
@@ -119,11 +134,13 @@ API documentation is available at:
 ## Development Workflow
 
 When working with the API:
-1. Product data is stored in `priv/data/products.csv`
+
+1. Data is stored in CSV files under `priv/data/`
 2. API changes should be reflected in OpenAPI docs by running `mix openapi.gen`
 3. Test API endpoints using the Swagger UI at `/api/swaggerui`
 
 When making code changes:
+
 1. Run `mix format` before committing
 2. Run `mix credo --strict` to check code quality
 3. Run `mix test` to ensure tests pass
@@ -132,6 +149,6 @@ When making code changes:
 ## Important Notes
 
 - The project uses CSV files instead of a database, so no Ecto migrations are needed
-- When modifying the Product resource, ensure the CSV data layer constraints are maintained
+- When modifying Ash resources, ensure the CSV data layer constraints are maintained
 - API routes are defined in both the Ash domain (`lib/pc3/api.ex`) and the Phoenix router
 - The project uses Phoenix 1.8 RC version with modern features like verified routes
