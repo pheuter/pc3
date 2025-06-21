@@ -9,7 +9,13 @@ import Config
 
 config :pc3,
   generators: [timestamp_type: :utc_datetime],
-  ash_domains: [Pc3.Api]
+  ash_domains: [Pc3.Api],
+  ecto_repos: [Pc3.Repo]
+
+# Configure SQLite Repo
+config :pc3, Pc3.Repo,
+  database: Path.expand("../priv/pc3_dev.db", __DIR__),
+  pool_size: 10
 
 # Configures the endpoint
 config :pc3, Pc3Web.Endpoint,

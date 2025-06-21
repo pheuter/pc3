@@ -22,3 +22,9 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Configure test database
+config :pc3, Pc3.Repo,
+  database: Path.expand("../priv/pc3_test.db", __DIR__),
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 10

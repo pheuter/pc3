@@ -59,9 +59,11 @@ defmodule Pc3.MixProject do
       {:bandit, "~> 1.5"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:ash, "~> 3.5"},
-      {:ash_csv, "~> 0.9"},
       {:ash_phoenix, "~> 2.3"},
       {:ash_json_api, "~> 1.4"},
+      {:ash_sqlite, "~> 0.2"},
+      {:ecto_sql, "~> 3.12"},
+      {:ecto_sqlite3, "~> 0.17"},
       {:open_api_spex, "~> 3.16"},
       {:redoc_ui_plug, "~> 0.2.1"}
     ]

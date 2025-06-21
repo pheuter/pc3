@@ -9,6 +9,7 @@ defmodule Pc3.Application do
   def start(_type, _args) do
     children = [
       Pc3Web.Telemetry,
+      Pc3.Repo,
       {DNSCluster, query: Application.get_env(:pc3, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Pc3.PubSub},
       # Start a worker by calling: Pc3.Worker.start_link(arg)

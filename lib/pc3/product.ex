@@ -21,18 +21,16 @@ defmodule Pc3.Product do
 
   use Ash.Resource,
     domain: Pc3.Api,
-    data_layer: AshCsv.DataLayer,
+    data_layer: AshSqlite.DataLayer,
     extensions: [AshJsonApi.Resource]
 
   json_api do
     type("product")
   end
 
-  csv do
-    file("priv/data/products.csv")
-    create?(true)
-    header?(true)
-    columns([:id, :name, :description, :price, :stock])
+  sqlite do
+    table("products")
+    repo(Pc3.Repo)
   end
 
   attributes do
@@ -41,6 +39,7 @@ defmodule Pc3.Product do
     attribute :name, :string do
       allow_nil?(false)
       public?(true)
+      constraints(trim?: false)
     end
 
     attribute :description, :string do
@@ -76,7 +75,7 @@ defmodule Pc3.Product do
       message("Description cannot exceed 1000 characters")
     end
 
-    validate match(:name, ~r/^[^\s].*[^\s]$/) do
+    validate match(:name, ~r/^[^\s].*[^\s]$|^[^\s]$/) do
       message("Name cannot start or end with whitespace")
     end
   end
@@ -109,10 +108,10 @@ defmodule Pc3.Product do
       end
 
       validate compare(:stock, greater_than_or_equal_to: arg(:quantity)) do
-        message("Insufficient stock. Only %{stock} items available.")
+        message("Insufficient stock")
       end
 
-      change(set_attribute(:stock, expr(stock - ^arg(:quantity))))
+      change(atomic_update(:stock, expr(stock - ^arg(:quantity))))
     end
 
     update :restock do
@@ -123,7 +122,7 @@ defmodule Pc3.Product do
         constraints(min: 1)
       end
 
-      change(set_attribute(:stock, expr(stock + ^arg(:quantity))))
+      change(atomic_update(:stock, expr(stock + ^arg(:quantity))))
     end
 
     update :adjust_price do
@@ -131,15 +130,11 @@ defmodule Pc3.Product do
 
       argument :new_price, :decimal do
         allow_nil?(false)
-        constraints(min: 0)
+        constraints(greater_than: 0)
       end
 
       argument :reason, :string do
         allow_nil?(true)
-      end
-
-      validate compare(arg(:new_price), greater_than: 0) do
-        message("New price must be greater than 0")
       end
 
       change(set_attribute(:price, arg(:new_price)))

@@ -1,4 +1,8 @@
 defmodule Pc3Web.ApiRouter do
+  @moduledoc """
+  Router for API endpoints including JSON API and OpenAPI documentation.
+  """
+
   use AshJsonApi.Router,
     domains: [Pc3.Api],
     open_api: "/open_api",
